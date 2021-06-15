@@ -1,7 +1,10 @@
 # rest-api-with-spring
 
 ### 목표🏳
-스프링을 사용하여 Self-Descriptive message와 HATEOAS(Hypermedia as the engine of application state)를 만족하는 REST API를 개발한다
+스프링 부트를 사용하여 Self-Descriptive message와 HATEOAS(Hypermedia as the engine of application state)를 만족하는 REST API를 개발한다
+
+### 상세
+Event API를 설계 및 개발한다
 
 ### 프로젝트 관리🏷
 
