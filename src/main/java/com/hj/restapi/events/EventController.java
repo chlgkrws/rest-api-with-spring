@@ -2,6 +2,7 @@ package com.hj.restapi.events;
 
 import java.net.URI;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +22,13 @@ public class EventController {
 
 	private final EventRepository eventRepository;
 
-	@PostMapping
-	public ResponseEntity createEvent(@RequestBody Event event) {
-		Event newEvent = eventRepository.save(event);
+	private final ModelMapper modelMapper;
 
+	@PostMapping
+	public ResponseEntity createEvent(@RequestBody EventDTO eventDTO) {
+		Event event = modelMapper.map(eventDTO, Event.class);
+		Event newEvent = eventRepository.save(event);
 		URI createUri =  linkTo(EventController.class).slash(newEvent.getId()).toUri();
-		event.setId(10);
 		return ResponseEntity.created(createUri).body(event);
 	}
 }
