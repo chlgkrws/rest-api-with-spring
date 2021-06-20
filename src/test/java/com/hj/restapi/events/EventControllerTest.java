@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -31,6 +32,7 @@ public class EventControllerTest {
 	ObjectMapper objectMapper;
 
 	@Test
+	@DisplayName("정상적으로 이벤트를 생성하는 테스트")
 	public void createEvent() throws Exception{
 		EventDTO event = EventDTO.builder()
 				.name("Spring")
@@ -60,6 +62,7 @@ public class EventControllerTest {
 	}
 
 	@Test
+	@DisplayName("입력 값이 잘못된 경우 에러가 발생하는 테스트")
 	public void createEvent_Bad_Request() throws Exception{
 		Event event = Event.builder()
 				.name("Spring")
@@ -86,6 +89,7 @@ public class EventControllerTest {
 	}
 
 	@Test
+	@DisplayName("입력값이 비어있는 경우 에러가 발생하는 테스트")
 	public void createEvent_Bad_Request_Empty_Input() throws Exception {
 		EventDTO eventDto = EventDTO.builder()
 				.name("Spring")
