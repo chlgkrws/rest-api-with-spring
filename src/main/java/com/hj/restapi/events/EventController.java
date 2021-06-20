@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @Controller
-@RequestMapping(value = "/api/events", produces = MediaTypes.HAL_JSON_VALUE)
+@RequestMapping(value = "/api/events", produces = MediaTypes.HAL_JSON)
 @RequiredArgsConstructor
 public class EventController {
 
@@ -29,14 +29,14 @@ public class EventController {
 	private final EventValidator eventValidator;
 
 	@PostMapping
-	public ResponseEntity<Event> createEvent(@RequestBody @Valid EventDTO eventDTO, Errors errors) {
+	public ResponseEntity createEvent(@RequestBody @Valid EventDTO eventDTO, Errors errors) {
 		if(errors.hasErrors()) {
 			return ResponseEntity.badRequest().build();
 		}
 
 		eventValidator.validate(eventDTO, errors);
 		if(errors.hasErrors()) {
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body(errors);
 		}
 
 		Event event = modelMapper.map(eventDTO, Event.class);
