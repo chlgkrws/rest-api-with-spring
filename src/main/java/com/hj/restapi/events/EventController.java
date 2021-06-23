@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @Controller
-@RequestMapping(value = "/api/events", produces = MediaTypes.HAL_JSON)
+@RequestMapping(value = "/api/events", produces = MediaTypes.HAL_JSON_VALUE)
 @RequiredArgsConstructor
 public class EventController {
 
