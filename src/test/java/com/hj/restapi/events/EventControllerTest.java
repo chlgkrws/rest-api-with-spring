@@ -58,7 +58,11 @@ public class EventControllerTest {
 						.andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
 						.andExpect(jsonPath("id").value(Matchers.not(100)))
 						.andExpect(jsonPath("offline").value(true))
-						.andExpect(jsonPath("free").value(false));
+						.andExpect(jsonPath("free").value(false))
+						.andExpect(jsonPath("_links.self").exists())
+						.andExpect(jsonPath("_links.query-events").exists())
+						.andExpect(jsonPath("_links.update-event").exists())
+						;
 
 	}
 

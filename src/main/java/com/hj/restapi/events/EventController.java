@@ -5,7 +5,9 @@ import java.net.URI;
 import javax.validation.Valid;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -43,7 +45,15 @@ public class EventController {
 		event.update();
 		
 		Event newEvent = eventRepository.save(event);
-		URI createUri =  linkTo(EventController.class).slash(newEvent.getId()).toUri();
-		return ResponseEntity.created(createUri).body(event);
+		
+		WebMvcLinkBuilder selfLinkBuilder = linkTo(EventController.class).slash(event.getId());
+		URI createUri =  selfLinkBuilder.toUri();
+		
+		EntityModel<Event> eventResource = EntityModel.of(newEvent);
+		eventResource.add(selfLinkBuilder.withSelfRel());
+		eventResource.add(linkTo(EventController.class).withRel("query-events"));
+		eventResource.add(selfLinkBuilder.withRel("update-event"));
+		
+		return ResponseEntity.created(createUri).body(eventResource);
 	}
 }
