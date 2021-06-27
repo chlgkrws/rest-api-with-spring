@@ -46,6 +46,4 @@ public class ErrorsSerializer extends JsonSerializer<Errors>{
 		});
 		gen.writeEndArray();
 	}
-
-
 }
