@@ -26,8 +26,6 @@ Event API를 설계 및 개발한다
 
 
 
-
-
 ## Reference📜
 
 [스프링 기반 REST API 개발](https://www.inflearn.com/course/spring_rest-api)
