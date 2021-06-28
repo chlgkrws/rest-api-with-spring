@@ -1,5 +1,8 @@
 package com.hj.restapi.events;
 
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -12,17 +15,23 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.hypermedia.HypermediaDocumentation;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hj.restapi.common.RestDocsConfiguration;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureRestDocs
+@Import(RestDocsConfiguration.class)
 public class EventControllerTest {
 
 	@Autowired
@@ -30,7 +39,7 @@ public class EventControllerTest {
 
 	@Autowired
 	ObjectMapper objectMapper;
-
+	
 	@Test
 	@DisplayName("정상적으로 이벤트를 생성하는 테스트")
 	public void createEvent() throws Exception{
@@ -62,6 +71,13 @@ public class EventControllerTest {
 						.andExpect(jsonPath("_links.self").exists())
 						.andExpect(jsonPath("_links.query-events").exists())
 						.andExpect(jsonPath("_links.update-event").exists())
+						.andDo(document("create-event",
+								links(
+										linkWithRel("self").description("link to self"),
+										linkWithRel("query-events").description("link to query"),
+										linkWithRel("update-event").description("link to update")
+								)
+								))
 						;
 
 	}
