@@ -1,9 +1,12 @@
 package com.hj.restapi.events;
 
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -22,7 +25,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.hypermedia.HypermediaDocumentation;
+import org.springframework.restdocs.headers.HeaderDocumentation;
+import org.springframework.restdocs.payload.PayloadDocumentation;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -76,8 +80,44 @@ public class EventControllerTest {
 										linkWithRel("self").description("link to self"),
 										linkWithRel("query-events").description("link to query"),
 										linkWithRel("update-event").description("link to update")
+								),
+								requestHeaders(
+										HeaderDocumentation.headerWithName(HttpHeaders.ACCEPT).description("accept header"),
+										HeaderDocumentation.headerWithName(HttpHeaders.CONTENT_TYPE).description("content type")
+								),
+								requestFields(
+										fieldWithPath("name").description("Name of new event"),
+										fieldWithPath("description").description("description of new event"),
+										fieldWithPath("beginEnrollmentDateTime").description("data time of begin of new event"),
+										fieldWithPath("closeEnrollmentDateTime").description("data time of close of new event"),
+										fieldWithPath("beginEventDateTime").description("data time of begin of new event"),
+										fieldWithPath("endEventDateTime").description("data time of end of new event"),
+										fieldWithPath("location").description("location of new event"),
+										fieldWithPath("basePrice").description("basePrice of new event"),
+										fieldWithPath("maxPrice").description("maxPrice of new event"),
+										fieldWithPath("limitOfEnrollment").description("limit of new event")
+								),
+								responseHeaders(
+										headerWithName(HttpHeaders.LOCATION).description("Location of response"),
+										headerWithName(HttpHeaders.CONTENT_TYPE).description("json-hal")
+								),
+								relaxedResponseFields(
+										fieldWithPath("id").description("identifier of new event"),
+										fieldWithPath("name").description("Name of new event"),
+										fieldWithPath("description").description("description of new event"),
+										fieldWithPath("beginEnrollmentDateTime").description("data time of begin of new event"),
+										fieldWithPath("closeEnrollmentDateTime").description("data time of close of new event"),
+										fieldWithPath("beginEventDateTime").description("data time of begin of new event"),
+										fieldWithPath("endEventDateTime").description("data time of end of new event"),
+										fieldWithPath("location").description("location of new event"),
+										fieldWithPath("basePrice").description("basePrice of new event"),
+										fieldWithPath("maxPrice").description("maxPrice of new event"),
+										fieldWithPath("limitOfEnrollment").description("limit of new event"),
+										fieldWithPath("free").description("it tells if this event is free or not"),
+										fieldWithPath("offline").description("it tells if this event is offline or not"),
+										fieldWithPath("eventStatus").description("event status")
 								)
-								))
+						))
 						;
 
 	}
