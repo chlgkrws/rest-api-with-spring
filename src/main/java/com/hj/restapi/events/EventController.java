@@ -1,6 +1,7 @@
 package com.hj.restapi.events;
 
 import java.net.URI;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -18,10 +19,7 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 
@@ -49,7 +47,20 @@ public class EventController {
 		pagedResources.add(Link.of("/docs/index.html#resources-events-list").withRel("profile"));
 		return ResponseEntity.ok().body(pagedResources);
 	}
-
+	
+	@GetMapping("/{id}")
+	public ResponseEntity getEvent(@PathVariable Integer id){
+		Optional<Event> optionalEvent = this.eventRepository.findById(id);
+		if(optionalEvent.isEmpty()){
+			return ResponseEntity.notFound().build();
+		}
+		Event event = optionalEvent.get();
+		EntityModel<Event> entityModel = EntityModel.of(event);
+		entityModel.add(linkTo(EventController.class).slash(event.getId()).withSelfRel());
+		entityModel.add(Link.of("/docs/index.html#resources-events-get").withRel("profile"));
+		return ResponseEntity.ok().body(entityModel);
+	}
+	
 	@PostMapping
 	public ResponseEntity createEvent(@RequestBody @Valid EventDTO eventDTO, Errors errors) {
 		if(errors.hasErrors()) {
