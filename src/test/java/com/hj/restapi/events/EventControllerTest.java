@@ -27,6 +27,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.headers.HeaderDocumentation;
 import org.springframework.restdocs.payload.PayloadDocumentation;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +37,7 @@ import com.hj.restapi.common.RestDocsConfiguration;
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
 @Import(RestDocsConfiguration.class)
+@ActiveProfiles("test")
 public class EventControllerTest {
 
 	@Autowired
@@ -79,7 +81,8 @@ public class EventControllerTest {
 								links(
 										linkWithRel("self").description("link to self"),
 										linkWithRel("query-events").description("link to query"),
-										linkWithRel("update-event").description("link to update")
+										linkWithRel("update-event").description("link to update"),
+										linkWithRel("profile").description("link to profile")
 								),
 								requestHeaders(
 										HeaderDocumentation.headerWithName(HttpHeaders.ACCEPT).description("accept header"),
@@ -171,11 +174,10 @@ public class EventControllerTest {
 				.content(this.objectMapper.writeValueAsString(eventDto))
 				)
 				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$[1].objectName").exists())
-				//.andExpect(jsonPath("$[0].field").exists())
-				.andExpect(jsonPath("$[1].defaultMessage").exists())
-				.andExpect(jsonPath("$[1].code").exists())
-				//.andExpect(jsonPath("$[0].rejectedValue").exists())
+				.andExpect(jsonPath("errors[0].objectName").exists())
+				.andExpect(jsonPath("errors[0].defaultMessage").exists())
+				.andExpect(jsonPath("errors[0].code").exists())
+				.andExpect(jsonPath("_links.index").exists())
 				.andDo(print())
 				;
 	}
