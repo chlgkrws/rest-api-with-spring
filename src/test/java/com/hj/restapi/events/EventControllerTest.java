@@ -16,9 +16,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.util.stream.IntStream;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -50,6 +52,9 @@ public class EventControllerTest {
 
 	@Autowired
 	EventRepository eventRepository;
+
+	@Autowired
+	ModelMapper modelMapper;
 
 	@Test
 	@DisplayName("정상적으로 이벤트를 생성하는 테스트")
@@ -250,15 +255,7 @@ public class EventControllerTest {
 		;
 	}
 	
-	// 이벤트 생성 및 저장 함수
-	private Event generateEvent(int index) {
-		Event event = Event.builder()
-				.name("event"+ index)
-				.description("test event")
-				.build();
-		
-		return this.eventRepository.save(event);
-	}
+
 
 	@Test
 	@DisplayName("기존의 이벤트를 하나 조회하기")
@@ -285,5 +282,100 @@ public class EventControllerTest {
 		this.mockMvc.perform(get("/api/events/124124214"))
 				.andExpect(status().isNotFound())
 		;
+	}
+	
+	@Test
+	@DisplayName("이벤트를 정상적으로 수정하기")
+	public void updateEvent() throws Exception{
+		// given
+		Event event = this.generateEvent(200);
+		EventDTO eventDTO = this.modelMapper.map(event, EventDTO.class);
+		String eventName = "update Event";
+		eventDTO.setName(eventName);
+
+		// when & then
+		this.mockMvc.perform(put("/api/events/{id}", event.getId())
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(this.objectMapper.writeValueAsString(eventDTO)))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("name").exists())
+				.andExpect(jsonPath("_links.self").exists())
+				;
+	}
+
+	@Test
+	@DisplayName("입력값이 비어있는 경우에 이벤트 수정 실패")
+	public void updateEvent400_Empty() throws Exception{
+		// given
+		Event event = this.generateEvent(200);
+
+		EventDTO eventDTO = new EventDTO();
+
+		// when & then
+		this.mockMvc.perform(put("/api/events/{id}", event.getId())
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(this.objectMapper.writeValueAsString(eventDTO)))
+				.andDo(print())
+				.andExpect(status().isBadRequest())
+		;
+	}
+
+	@Test
+	@DisplayName("입력값이 잘못된 경우에 이벤트 수정 실패")
+	public void updateEvent400_Wrong() throws Exception {
+		// given
+		Event event = this.generateEvent(200);
+
+		EventDTO eventDTO = modelMapper.map(event,EventDTO.class);
+		eventDTO.setBasePrice(20000);
+		eventDTO.setMaxPrice(100);
+
+
+		// when & then
+		this.mockMvc.perform(put("/api/events/{id}", event.getId())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(this.objectMapper.writeValueAsString(eventDTO)))
+				.andDo(print())
+				.andExpect(status().isBadRequest())
+		;
+	}
+
+	@Test
+	@DisplayName("존재하지 않는 이벤트 수정 실패")
+	public void updateEvent404() throws Exception {
+		// given
+		Event event = this.generateEvent(200);
+		EventDTO eventDTO = modelMapper.map(event,EventDTO.class);
+
+
+		// when & then
+		this.mockMvc.perform(put("/api/events/12312412")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(this.objectMapper.writeValueAsString(eventDTO)))
+				.andDo(print())
+				.andExpect(status().isNotFound())
+		;
+	}
+
+	// 이벤트 생성 및 저장 함수
+	private Event generateEvent(int index) {
+		Event event = Event.builder()
+				.name("Spring")
+				.description("REST API Development with Spring")
+				.beginEnrollmentDateTime(LocalDateTime.of(2021, 6, 16, 12, 29))
+				.closeEnrollmentDateTime(LocalDateTime.of(2021, 6, 17, 12, 29))
+				.beginEventDateTime(LocalDateTime.of(2021, 6, 18, 12, 29))
+				.endEventDateTime(LocalDateTime.of(2021, 6, 19, 12, 29))
+				.basePrice(100)
+				.maxPrice(200)
+				.limitOfEnrollment(100)
+				.location("종로 3가역")
+				.free(false)
+				.offline(false)
+				.eventStatus(EventStatus.DFAFT)
+				.build();
+
+		return this.eventRepository.save(event);
 	}
 }
