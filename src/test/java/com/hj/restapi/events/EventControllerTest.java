@@ -5,14 +5,16 @@ import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.li
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
+import java.util.stream.IntStream;
 
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
@@ -45,7 +47,10 @@ public class EventControllerTest {
 
 	@Autowired
 	ObjectMapper objectMapper;
-	
+
+	@Autowired
+	EventRepository eventRepository;
+
 	@Test
 	@DisplayName("정상적으로 이벤트를 생성하는 테스트")
 	public void createEvent() throws Exception{
@@ -181,4 +186,78 @@ public class EventControllerTest {
 				.andDo(print())
 				;
 	}
+
+	@Test
+	@DisplayName("30개의 이벤트를 10개씩 두 번째 페이지 조회하기")
+	public void queryEvents() throws Exception {
+		// given
+		IntStream.range(0, 30).forEach(i -> {
+				this.generateEvent(i);
+		});
+
+		// when
+		this.mockMvc.perform(get("/api/events")
+				.param("page", "1")
+				.param("size", "10")
+				.param("sort", "name,DESC")
+				.accept(MediaTypes.HAL_JSON)
+		)
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("page").exists())
+				.andExpect(jsonPath("_embedded.eventList[0]._links.self").exists())
+				.andExpect(jsonPath("_links.profile").exists())
+				.andExpect(jsonPath("_links.self").exists())
+				.andDo(document("query-events",
+						links(
+								linkWithRel("first").description("link to first eventList"),
+								linkWithRel("prev").description("link to prev eventList"),
+								linkWithRel("self").description("link to present eventList"),
+								linkWithRel("next").description("link to next eventList"),
+								linkWithRel("last").description("link to last eventList"),
+								linkWithRel("profile").description("link to profile")
+						),
+						requestHeaders(
+								headerWithName(HttpHeaders.ACCEPT).description("accept header")
+						),
+						requestParameters(
+								parameterWithName("page").description("page of events"),
+								parameterWithName("size").description("size of events"),
+								parameterWithName("sort").description("type of sort")
+						),
+						responseHeaders(
+								headerWithName(HttpHeaders.CONTENT_TYPE).description("json hal")
+						),
+						relaxedResponseFields(
+								beneathPath("_embedded.eventList[0]"),
+								fieldWithPath("id").description("identifier of new event"),
+								fieldWithPath("name").description("Name of new event"),
+								fieldWithPath("description").description("description of new event"),
+								fieldWithPath("beginEnrollmentDateTime").description("data time of begin of new event"),
+								fieldWithPath("closeEnrollmentDateTime").description("data time of close of new event"),
+								fieldWithPath("beginEventDateTime").description("data time of begin of new event"),
+								fieldWithPath("endEventDateTime").description("data time of end of new event"),
+								fieldWithPath("location").description("location of new event"),
+								fieldWithPath("basePrice").description("basePrice of new event"),
+								fieldWithPath("maxPrice").description("maxPrice of new event"),
+								fieldWithPath("limitOfEnrollment").description("limit of new event"),
+								fieldWithPath("free").description("it tells if this event is free or not"),
+								fieldWithPath("offline").description("it tells if this event is offline or not"),
+								fieldWithPath("eventStatus").description("event status"),
+								fieldWithPath("_links.self").description("link to self")
+						)
+				))
+				.andDo(print())
+		;
+	}
+	
+	// 이벤트 생성 및 저장 함수
+	private void generateEvent(int index) {
+		Event event = Event.builder()
+				.name("event"+ index)
+				.description("test event")
+				.build();
+		
+		this.eventRepository.save(event);
+	}
+
 }

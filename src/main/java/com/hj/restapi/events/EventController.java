@@ -7,13 +7,18 @@ import javax.validation.Valid;
 import com.hj.restapi.common.ErrorResource;
 import com.hj.restapi.index.IndexController;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +37,18 @@ public class EventController {
 	private final ModelMapper modelMapper;
 
 	private final EventValidator eventValidator;
+
+	@GetMapping
+	public ResponseEntity queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assembler ){
+		Page<Event> page = eventRepository.findAll(pageable);
+		var pagedResources = assembler.toModel(page, e -> {
+			EntityModel<Event> eventEntityModel = EntityModel.of(e);
+			eventEntityModel.add(linkTo(EventController.class).slash(e.getId()).withSelfRel());
+			return eventEntityModel;
+		});
+		pagedResources.add(Link.of("/docs/index.html#resources-events-list").withRel("profile"));
+		return ResponseEntity.ok().body(pagedResources);
+	}
 
 	@PostMapping
 	public ResponseEntity createEvent(@RequestBody @Valid EventDTO eventDTO, Errors errors) {
