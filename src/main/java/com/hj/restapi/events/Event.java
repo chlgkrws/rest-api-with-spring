@@ -2,12 +2,9 @@ package com.hj.restapi.events;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
+import com.hj.restapi.accounts.Account;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -42,6 +39,8 @@ public class Event {
 
 	@Enumerated(EnumType.STRING)
 	private EventStatus eventStatus;
+	@ManyToOne
+	private Account manager;
 
 	public void update() {
 		//
