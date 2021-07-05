@@ -270,8 +270,32 @@ public class EventControllerTest {
 				.andExpect(jsonPath("id").exists())
 				.andExpect(jsonPath("_links.self").exists())
 				.andExpect(jsonPath("_links.profile").exists())
-				.andDo(document("get-an-event"))
-
+				.andDo(print())
+				.andDo(document("get-an-event",
+						links(
+								linkWithRel("self").description("link to self"),
+								linkWithRel("profile").description("link to profile")
+						),
+						responseHeaders(
+								headerWithName(HttpHeaders.CONTENT_TYPE).description("hal json")
+						),
+						relaxedResponseFields(
+								fieldWithPath("id").description("identifier of new event"),
+								fieldWithPath("name").description("Name of new event"),
+								fieldWithPath("description").description("description of new event"),
+								fieldWithPath("beginEnrollmentDateTime").description("data time of begin of new event"),
+								fieldWithPath("closeEnrollmentDateTime").description("data time of close of new event"),
+								fieldWithPath("beginEventDateTime").description("data time of begin of new event"),
+								fieldWithPath("endEventDateTime").description("data time of end of new event"),
+								fieldWithPath("location").description("location of new event"),
+								fieldWithPath("basePrice").description("basePrice of new event"),
+								fieldWithPath("maxPrice").description("maxPrice of new event"),
+								fieldWithPath("limitOfEnrollment").description("limit of new event"),
+								fieldWithPath("free").description("it tells if this event is free or not"),
+								fieldWithPath("offline").description("it tells if this event is offline or not"),
+								fieldWithPath("eventStatus").description("event status")
+						)
+						))
 				;
 	}
 
@@ -301,6 +325,49 @@ public class EventControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("name").exists())
 				.andExpect(jsonPath("_links.self").exists())
+				.andExpect(jsonPath("_links.profile").exists())
+				.andDo(document("update-event",
+						links(
+								linkWithRel("self").description("link to self"),
+								linkWithRel("profile").description("link to profile")
+						),
+						requestHeaders(
+								headerWithName(HttpHeaders.CONTENT_TYPE).description("content type")
+						),
+						requestFields(
+								fieldWithPath("name").description("Name of event"),
+								fieldWithPath("description").description("description of event"),
+								fieldWithPath("beginEnrollmentDateTime").description("data time of begin of event"),
+								fieldWithPath("closeEnrollmentDateTime").description("data time of close of event"),
+								fieldWithPath("beginEventDateTime").description("data time of begin of event"),
+								fieldWithPath("endEventDateTime").description("data time of end of event"),
+								fieldWithPath("location").description("location of event"),
+								fieldWithPath("basePrice").description("basePrice of event"),
+								fieldWithPath("maxPrice").description("maxPrice of event"),
+								fieldWithPath("limitOfEnrollment").description("limit of event")
+						),
+						responseHeaders(
+								headerWithName(HttpHeaders.CONTENT_TYPE).description("hal json")
+						),
+						relaxedResponseFields(
+								fieldWithPath("id").description("identifier of event"),
+								fieldWithPath("name").description("Name of event"),
+								fieldWithPath("description").description("description of  event"),
+								fieldWithPath("beginEnrollmentDateTime").description("data time of begin of event"),
+								fieldWithPath("closeEnrollmentDateTime").description("data time of close of event"),
+								fieldWithPath("beginEventDateTime").description("data time of begin of event"),
+								fieldWithPath("endEventDateTime").description("data time of end of event"),
+								fieldWithPath("location").description("location of event"),
+								fieldWithPath("basePrice").description("basePrice of event"),
+								fieldWithPath("maxPrice").description("maxPrice of event"),
+								fieldWithPath("limitOfEnrollment").description("limit of event"),
+								fieldWithPath("free").description("it tells if this event is free or not"),
+								fieldWithPath("offline").description("it tells if this event is offline or not"),
+								fieldWithPath("eventStatus").description("event status"),
+								fieldWithPath("_links.self").description("link to self"),
+								fieldWithPath("_links.profile").description("link to profile")
+						)
+						))
 				;
 	}
 
