@@ -1,5 +1,6 @@
 package com.hj.restapi.index;
 
+import com.hj.restapi.common.BaseControllerTest;
 import com.hj.restapi.common.RestDocsConfiguration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,25 +18,19 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@AutoConfigureRestDocs
-@Import(RestDocsConfiguration.class)
-@ActiveProfiles("test")
-public class IndexControllerTest {
 
-    @Autowired
-    MockMvc mockMvc;
+public class IndexControllerTest extends BaseControllerTest {
 
     @Test
-    @DisplayName("인덱스로 가는 url 얻기")
     public void index() throws Exception {
         this.mockMvc.perform(get("/api/"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("_links.events").exists())
+                .andDo(print())
                 .andDo(document("index",
                         links(
                                 linkWithRel("events").description("index of service")
