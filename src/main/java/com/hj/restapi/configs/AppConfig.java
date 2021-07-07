@@ -1,6 +1,7 @@
 package com.hj.restapi.configs;
 
 import com.hj.restapi.accounts.Account;
+import com.hj.restapi.accounts.AccountRepository;
 import com.hj.restapi.accounts.AccountRole;
 import com.hj.restapi.accounts.AccountService;
 import org.modelmapper.ModelMapper;
@@ -37,11 +38,18 @@ public class AppConfig {
             @Override
             public void run(ApplicationArguments args) throws Exception {
                 Account testUser = Account.builder()
-                        .email("cgw981@naver.com")
+                        .email("user@naver.com")
                         .password("gkrwns")
-                        .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
+                        .roles(Set.of(AccountRole.USER))
                         .build();
                 accountService.saveAccount(testUser);
+
+                Account testAdmin = Account.builder()
+                        .email("admin@naver.com")
+                        .password("gkrwns")
+                        .roles(Set.of(AccountRole.ADMIN))
+                        .build();
+                accountService.saveAccount(testAdmin);
             }
         };
     }
